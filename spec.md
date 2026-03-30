@@ -1,4 +1,5 @@
-
+# DOG
+Grundsätzlich bauen wir Brändi-Dog nach.
 
 ## Ziel des Spiels:
 
@@ -13,7 +14,7 @@ Gespielt wird in 2er-Teams (bei 4 Spielern: 2 vs. 2, gegenüber sitzende Spieler
 - Jeder Spieler hat:
 4 Spielfiguren, einen Startbereich, ein Zielfeld mit 4 Zielfeldern
 - Es gibt ein gemeinsames Spielfeld im Kreis.
-- Es wird mit DOG-Karten gespielt (Jasskarten + Joker).
+- Es wird mit Jasskarten (+ Joker) gespielt.
 
 ## Spielablauf
 ### Kartenverteilung
@@ -31,15 +32,35 @@ Vor Beginn jeder Runde tauschen Teammitglieder jeweils eine Karte verdeckt.
 ## Kartenfunktionen
 
 - Ass: 1 oder 11 Felder vorwärts ODER Figur aus dem Start
-- König:	Figur aus dem Start
+- König: 13 oder Figur aus dem Start
 - 2–10:	Entsprechend viele Felder vorwärts
 - 4: 4 Felder rückwärts
 - 7: 7 Felder frei aufteilbar auf eigene Figuren
-- Bube: Tauscht eine eigene Figur mit einer gegnerischen
+- Junge: Tauscht eine eigene Figur mit einer gegnerischen
 - Joker: Frei wählbar wie jede andere Karte
 
-Regeln vom offiziellen Spiel: https://www.braendi-dog.de/braendi-dog-spielregeln-anleitungen.html
 
+## Spezialregeln & Klarstellungen
+
+- Zwei eigene Figuren dürfen nicht auf demselben Feld stehen.
+- Wenn Figur auf genau andere trifft, ist die andere Figur geschlagen
+
+- Die 7 darf beliebig auf eigene Figuren verteilt werden.
+- Schlagen während einer 7er-Aufteilung ist erlaubt.
+
+- Wenn keine Karte spielbar ist -> Alle Karten in die Mitte werfen und erst nächste Runde wieder mitspielen
+
+- Wenn alle 4 Figuren im Ziel sind -> Spieler spielt mit den Figuren seines Teampartners weiter.
+
+## Spieler kann:
+- Eigene Karten sehen
+- Eine Karte auswählen
+- Eine Figur auswählen
+- Zug bestätigen
+- Bei 7: Schritte aufteilen
+- Karte für Tausch auswählen
+
+-> nach jedem Zug wird automatisch gewechselt
 
 ## Akzeptanzkriterien
 
@@ -53,3 +74,10 @@ Die korrekte Spiellogik ist erfüllt, wenn:
 - Teamgewinn korrekt erkannt wird.
 - Rundenablauf (6–5–4–3–2 Karten) korrekt funktioniert.
 - Kartentausch vor jeder Runde korrekt funktioniert.
+
+
+## Erweiterungsmöglichkeiten
+- Spiel auch mit 6 Spielern
+- Replay-Funktion
+
+Regeln vom offiziellen Spiel: https://www.braendi-dog.de/braendi-dog-spielregeln-anleitungen.html
