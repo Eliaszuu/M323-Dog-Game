@@ -1,4 +1,4 @@
-package com.ch.axa.its;
+package com.ch.bbw.m323;
 
 public class Main {
     public static void main(String[] args) {
