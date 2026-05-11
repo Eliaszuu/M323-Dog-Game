@@ -14,10 +14,13 @@ public class GameEngine {
         // AUS HAUS LOGIK
         if (ball.isAtHome()) {
 
-            if (card.rank() == Rank.ACE || card.rank() == Rank.KING) {
+            if (card.rank() == Rank.ACE
+                    || card.rank() == Rank.KING
+                    || card.rank() == Rank.JOKER) {
+
                 newBall = Ball.enterBoard();
             } else {
-                System.out.println("Du brauchst ASS oder KÖNIG um rauszukommen!");
+                System.out.println("Du brauchst ASS, KÖNIG oder JOKER!");
                 return state;
             }
 

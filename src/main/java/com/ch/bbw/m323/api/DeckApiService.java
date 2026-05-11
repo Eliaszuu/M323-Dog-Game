@@ -1,6 +1,7 @@
 package com.ch.bbw.m323.api;
 
 import com.ch.bbw.m323.model.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vavr.collection.List;
 
@@ -17,18 +18,20 @@ public class DeckApiService {
 
     public String createNewDeck() throws Exception {
 
+        String url =
+                BASE_URL + "/new/shuffle/?deck_count=1&jokers_enabled=true";
+
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/new/shuffle/?deck_count=1"))
+                .uri(URI.create(url))
                 .GET()
                 .build();
 
         HttpResponse<String> response =
                 client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        DeckCreateResponse result =
-                mapper.readValue(response.body(), DeckCreateResponse.class);
+        JsonNode node = mapper.readTree(response.body());
 
-        return result.deck_id;
+        return node.get("deck_id").asText();
     }
 
     public List<Card> drawCards(String deckId, int count) throws Exception {
@@ -55,10 +58,38 @@ public class DeckApiService {
     }
 
     private Rank mapRank(String value) {
-        return Rank.fromApi(value);
+
+        if (value.equalsIgnoreCase("JOKER")) {
+            return Rank.JOKER;
+        }
+
+        return switch (value) {
+            case "ACE" -> Rank.ACE;
+            case "KING" -> Rank.KING;
+            case "QUEEN" -> Rank.QUEEN;
+            case "JACK" -> Rank.JACK;
+            case "10" -> Rank.TEN;
+            case "9" -> Rank.NINE;
+            case "8" -> Rank.EIGHT;
+            case "7" -> Rank.SEVEN;
+            case "6" -> Rank.SIX;
+            case "5" -> Rank.FIVE;
+            case "4" -> Rank.FOUR;
+            case "3" -> Rank.THREE;
+            case "2" -> Rank.TWO;
+            default -> throw new IllegalArgumentException("Unknown rank: " + value);
+        };
     }
 
     private Suit mapSuit(String suit) {
-        return Suit.valueOf(suit);
+
+        if (suit.equalsIgnoreCase("BLACK")
+                || suit.equalsIgnoreCase("RED")) {
+
+            // Joker -> Suit egal
+            return Suit.SPADES;
+        }
+
+        return Suit.valueOf(suit.toUpperCase());
     }
 }
