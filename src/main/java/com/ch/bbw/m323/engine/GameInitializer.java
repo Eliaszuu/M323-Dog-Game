@@ -34,16 +34,14 @@ public class GameInitializer {
     public static GameState dealCardsFromApi(GameState state) throws Exception {
 
         DeckApiService api = new DeckApiService();
-
         String deckId = api.createNewDeck();
 
         int totalCards =
                 state.players().size() * state.cardsPerRound();
 
-        List<Card> drawnCards =
-                api.drawCards(deckId, totalCards);
+        var drawnCards = api.drawCards(deckId, totalCards);
 
-        List<Player> updatedPlayers =
+        var updatedPlayers =
                 state.players().zipWithIndex().map(tuple -> {
 
                     Player player = tuple._1;
@@ -52,9 +50,7 @@ public class GameInitializer {
                     int start = index * state.cardsPerRound();
                     int end = start + state.cardsPerRound();
 
-                    List<Card> hand = drawnCards.slice(start, end);
-
-                    return player.withHand(hand);
+                    return player.withHand(drawnCards.slice(start, end));
                 });
 
         return new GameState(
