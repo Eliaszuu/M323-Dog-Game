@@ -3,6 +3,7 @@ package com.ch.bbw.m323;
 import com.ch.bbw.m323.engine.GameEngine;
 import com.ch.bbw.m323.engine.GameInitializer;
 import com.ch.bbw.m323.model.*;
+import io.vavr.collection.List;
 
 import java.util.Scanner;
 
@@ -36,6 +37,14 @@ public class Main {
                             current.balls().get(i).position());
                 }
 
+                // --- Kein gültiger Zug: Karten in die Mitte werfen ---
+                if (!GameEngine.hasAnyValidMove(current)) {
+                    System.out.println("⚠️  Kein gültiger Zug möglich – Karten werden in die Mitte geworfen.");
+                    Player discarded = current.withHand(List.empty());
+                    state = state.updatePlayer(discarded).nextPlayer();
+                    continue;
+                }
+
                 for (int i = 0; i < current.hand().size(); i++) {
                     System.out.println(i + ": " + current.hand().get(i));
                 }
@@ -58,7 +67,21 @@ public class Main {
                     continue;
                 }
 
-                state = GameEngine.playCard(state, ballIndex, card);
+                // --- Joker: Schrittanzahl wählen (nur wenn Ball auf dem Feld) ---
+                int jokerSteps = 0;
+                if (card.rank() == Rank.JOKER) {
+                    Ball selectedBall = current.balls().get(ballIndex);
+                    if (!selectedBall.isAtHome()) {
+                        System.out.print("Joker: Wie viele Schritte? (1–13): ");
+                        jokerSteps = scanner.nextInt();
+                        if (jokerSteps < 1 || jokerSteps > 13) {
+                            System.out.println("Ungültig! Bitte eine Zahl von 1 bis 13 eingeben.");
+                            continue;
+                        }
+                    }
+                }
+
+                state = GameEngine.playCard(state, ballIndex, card, jokerSteps);
             }
 
             System.out.println("\n=== Runde beendet – neue Karten werden verteilt ===");

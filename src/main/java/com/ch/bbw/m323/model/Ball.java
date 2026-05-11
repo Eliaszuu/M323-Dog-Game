@@ -30,6 +30,15 @@ public record Ball(int position) {
         return new Ball(newPos);
     }
 
+    /**
+     * Gibt true zurück, wenn sich der Ball bei diesem Schrittwert tatsächlich bewegen würde
+     * (d.h. nicht über das Zielende hinausschießt und nicht im Haus steht).
+     */
+    public boolean wouldMove(int steps) {
+        if (isAtHome()) return false;
+        return (position + steps) <= GOAL_END;
+    }
+
     public static Ball enterBoard() {
         return new Ball(1); // Startfeld
     }
