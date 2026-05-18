@@ -58,7 +58,7 @@ public class Main {
                         cardIndex = scanner.nextInt();
                         break; // gültige Zahl -> Schleife verlassen
                     } else {
-                        System.out.println("Bitte eine gültige Zahl eingeben!");
+                        System.out.println("\u001B[31m❌ Bitte eine gültige Zahl eingeben!\u001B[0m");
                         scanner.next(); // falsche Eingabe entfernen
                     }
                 }
@@ -174,7 +174,7 @@ public class Main {
                     idx = scanner.nextInt();
                     break; // gültige Zahl -> Schleife verlassen
                 } else {
-                    System.out.println("Bitte eine gültige Zahl eingeben!");
+                    System.out.println("\u001B[31m❌ Bitte eine gültige Zahl eingeben!\u001B[0m");
                     scanner.next(); // falsche Eingabe entfernen
                 }
             }
