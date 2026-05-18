@@ -32,6 +32,6 @@ public record Ball(int position) {
     }
 
     public static Ball enterBoard() {
-        return new Ball(1); // Startfeld
+        return new Ball(1);
     }
 }

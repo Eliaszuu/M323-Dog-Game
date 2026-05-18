@@ -29,7 +29,6 @@ public class Main {
         }
     }
 
-    // --- Runden-Setup ---
 
     private static GameState dealAndSwitch(GameState state, Scanner scanner) throws Exception {
         state = GameInitializer.dealCardsFromApi(state);
@@ -71,7 +70,6 @@ public class Main {
         return player.hand().get(idx);
     }
 
-    // --- Spielzug ---
 
     private static io.vavr.Tuple2<GameState, GameHistory> playTurn(
             GameState state, GameHistory history, Scanner scanner) {
@@ -144,15 +142,14 @@ public class Main {
         return idx;
     }
 
-    // --- Karten ausführen ---
 
     private static GameState executeCard(GameState state, Card card, Player current, Scanner scanner) {
         return switch (card.rank()) {
-            case JACK  -> executeJack(state, card, scanner);
+            case JACK -> executeJack(state, card, scanner);
             case SEVEN -> executeSeven(state, card, scanner);
-            case FOUR  -> executeFour(state, card, scanner);
+            case FOUR -> executeFour(state, card, scanner);
             case JOKER -> executeJoker(state, card, current, scanner);
-            default    -> executeStandard(state, card, scanner);
+            default -> executeStandard(state, card, scanner);
         };
     }
 
@@ -172,13 +169,19 @@ public class Main {
         int ballIndex = scanner.nextInt();
         System.out.print("Schritte für Ball " + ballIndex + " (1-6 = aufteilen, 7 = alles): ");
         int steps1 = scanner.nextInt();
-        if (steps1 < 1 || steps1 > 7) { System.out.println("Ungültig!"); return state; }
+        if (steps1 < 1 || steps1 > 7) {
+            System.out.println("Ungültig!");
+            return state;
+        }
         if (steps1 == 7) return GameEngine.playCard(state, ballIndex, card, 7);
 
         int steps2 = 7 - steps1;
         System.out.print("Zweiten Ball wählen (bekommt " + steps2 + " Schritte): ");
         int ball2 = scanner.nextInt();
-        if (ball2 < 0 || ball2 > 3) { System.out.println("Ungültig!"); return state; }
+        if (ball2 < 0 || ball2 > 3) {
+            System.out.println("Ungültig!");
+            return state;
+        }
         return GameEngine.playSevenSplit(state, card, ballIndex, steps1, ball2, steps2);
     }
 
@@ -198,18 +201,23 @@ public class Main {
         }
         System.out.print("Joker: Wie viele Schritte? (1-13): ");
         int jokerSteps = scanner.nextInt();
-        if (jokerSteps < 1 || jokerSteps > 13) { System.out.println("Ungültig!"); return state; }
+        if (jokerSteps < 1 || jokerSteps > 13) {
+            System.out.println("Ungültig!");
+            return state;
+        }
         return GameEngine.playCard(state, ballIndex, card, jokerSteps);
     }
 
     private static GameState executeStandard(GameState state, Card card, Scanner scanner) {
         System.out.print("Ball wählen (0-3): ");
         int ballIndex = scanner.nextInt();
-        if (ballIndex < 0 || ballIndex > 3) { System.out.println("Ungültig!"); return state; }
+        if (ballIndex < 0 || ballIndex > 3) {
+            System.out.println("Ungültig!");
+            return state;
+        }
         return GameEngine.playCard(state, ballIndex, card, card.getMoveValue());
     }
 
-    // --- Ausgabe-Hilfsmethoden ---
 
     private static void printPlayerStatus(Player current) {
         System.out.println("\n--------------------------------");
@@ -234,7 +242,6 @@ public class Main {
         });
     }
 
-    // --- Eingabe-Hilfsmethoden ---
 
     private static int readInt(Scanner scanner) {
         while (true) {
