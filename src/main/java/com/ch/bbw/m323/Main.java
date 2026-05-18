@@ -15,164 +15,13 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            state = GameInitializer.dealCardsFromApi(state);
-            GameState stateBeforeSwitch = state;
-            state = doCardSwitch(state, scanner);
-
-            System.out.print("Kartentausch rückgängig machen? (u = ja, f = weiter): ");
-            String undoSwitch = scanner.next().trim().toLowerCase();
-            if (undoSwitch.equals("u")) {
-                state = stateBeforeSwitch;
-                System.out.println("↩ Kartentausch rückgängig gemacht.");
-                state = doCardSwitch(state, scanner);
-            }
-
+            state = dealAndSwitch(state, scanner);
             System.out.println("\n=== Neue Runde gestartet ===");
 
             while (!isRoundFinished(state)) {
-                Player current = state.getCurrentPlayer();
-
-                if (GameEngine.hasWon(current)) {
-                    System.out.println("\n✓ Spieler " + current.id() + " hat gewonnen!");
-                    return;
-                }
-
-                System.out.println("\n--------------------------------");
-                System.out.println("Spieler " + current.id());
-                for (int i = 0; i < 4; i++) {
-                    System.out.println("Ball " + i + ": Position " + current.balls().get(i).position());
-                }
-
-                if (!GameEngine.hasAnyValidMove(current)) {
-                    System.out.println("Kein gültiger Zug möglich → Karten werden in die Mitte geworfen.");
-                    history = history.push(state);
-                    state = state.updatePlayer(current.withHand(List.empty())).nextPlayer();
-                    continue;
-                }
-
-                System.out.println("\nHand:");
-                for (int i = 0; i < current.hand().size(); i++) {
-                    System.out.println("  " + i + ": " + current.hand().get(i));
-                }
-
-                // Karteneingabe — mit Undo-Option
-                int cardIndex = -1;
-                while (true) {
-                    System.out.print("Kartenindex wählen (oder 'u' für Undo): ");
-                    String input = scanner.next().trim().toLowerCase();
-
-                    if (input.equals("u")) {
-                        if (history.canUndo()) {
-                            state = history.previous();
-                            history = history.pop();
-                            System.out.println("↩ Letzter Zug rückgängig gemacht.");
-                            break;
-                        } else {
-                            System.out.println("Kein Zug zum Rückgängigmachen vorhanden.");
-                            continue;
-                        }
-                    }
-
-                    try {
-                        cardIndex = Integer.parseInt(input);
-                        break;
-                    } catch (NumberFormatException e) {
-                        System.out.println("\u001B[31m Bitte eine gültige Zahl oder 'u' eingeben!\u001B[0m");
-                    }
-                }
-
-                // Bei Undo: neu von oben beginnen
-                if (state.getCurrentPlayer().id() != current.id()) continue;
-                if (cardIndex < 0 || cardIndex >= current.hand().size()) {
-                    System.out.println("Ungültig!");
-                    continue;
-                }
-
-                Card card = current.hand().get(cardIndex);
-                GameState stateBefore = state;
-
-                if (card.rank() == Rank.JACK) {
-                    System.out.println("Alle Bälle auf dem Feld:");
-                    for (int p = 0; p < state.players().size(); p++) {
-                        Player pl = state.players().get(p);
-                        System.out.print("  Spieler " + pl.id() + ": ");
-                        for (int b = 0; b < 4; b++) {
-                            System.out.print("Ball" + b + "@" + pl.balls().get(b).position() + "  ");
-                        }
-                        System.out.println();
-                    }
-                    System.out.print("Eigenen Ball wählen (0-3): ");
-                    int ownBall = scanner.nextInt();
-                    System.out.print("Spieler des Zielballs (0-3): ");
-                    int targetPlayer = scanner.nextInt();
-                    System.out.print("Zielball wählen (0-3): ");
-                    int targetBall = scanner.nextInt();
-                    history = history.push(stateBefore);
-                    state = GameEngine.playJack(state, card, ownBall, targetPlayer, targetBall);
-                    continue;
-                }
-
-                System.out.print("Ball wählen (0-3): ");
-                int ballIndex = scanner.nextInt();
-                if (ballIndex < 0 || ballIndex > 3) {
-                    System.out.println("Ungültig!");
-                    continue;
-                }
-
-                if (card.rank() == Rank.SEVEN) {
-                    System.out.print("Schritte für Ball " + ballIndex + " (1-6 = aufteilen, 7 = alles): ");
-                    int steps1 = scanner.nextInt();
-                    if (steps1 < 1 || steps1 > 7) {
-                        System.out.println("Ungültig!");
-                        continue;
-                    }
-                    if (steps1 == 7) {
-                        history = history.push(stateBefore);
-                        state = GameEngine.playCard(state, ballIndex, card, 7);
-                    } else {
-                        int steps2 = 7 - steps1;
-                        System.out.print("Zweiten Ball wählen (bekommt die restlichen " + steps2 + " Schritte): ");
-                        int ball2 = scanner.nextInt();
-                        if (ball2 < 0 || ball2 > 3) {
-                            System.out.println("Ungültig!");
-                            continue;
-                        }
-                        history = history.push(stateBefore);
-                        state = GameEngine.playSevenSplit(state, card, ballIndex, steps1, ball2, steps2);
-                    }
-                    continue;
-                }
-
-                if (card.rank() == Rank.FOUR) {
-                    System.out.print("Richtung: (v)orwärts +4 oder (r)ückwärts -4? ");
-                    String dir = scanner.next().trim().toLowerCase();
-                    int steps = dir.startsWith("r") ? -4 : 4;
-                    history = history.push(stateBefore);
-                    state = GameEngine.playCard(state, ballIndex, card, steps);
-                    continue;
-                }
-
-                if (card.rank() == Rank.JOKER) {
-                    Ball selectedBall = current.balls().get(ballIndex);
-                    if (!selectedBall.isAtHome()) {
-                        System.out.print("Joker: Wie viele Schritte? (1-13): ");
-                        int jokerSteps = scanner.nextInt();
-                        if (jokerSteps < 1 || jokerSteps > 13) {
-                            System.out.println("Ungültig!");
-                            continue;
-                        }
-                        history = history.push(stateBefore);
-                        state = GameEngine.playCard(state, ballIndex, card, jokerSteps);
-                        continue;
-                    }
-                    history = history.push(stateBefore);
-                    state = GameEngine.playCard(state, ballIndex, card, 0);
-                    continue;
-                }
-
-                // Standardzug
-                history = history.push(stateBefore);
-                state = GameEngine.playCard(state, ballIndex, card, card.getMoveValue());
+                var result = playTurn(state, history, scanner);
+                state = result._1;
+                history = result._2;
             }
 
             System.out.println("\n=== Runde beendet – neue Karten werden verteilt ===");
@@ -180,43 +29,220 @@ public class Main {
         }
     }
 
+    // --- Runden-Setup ---
+
+    private static GameState dealAndSwitch(GameState state, Scanner scanner) throws Exception {
+        state = GameInitializer.dealCardsFromApi(state);
+        GameState stateBeforeSwitch = state;
+        state = doCardSwitch(state, scanner);
+
+        System.out.print("Kartentausch rückgängig machen? (u = ja, f = weiter): ");
+        if (scanner.next().trim().equalsIgnoreCase("u")) {
+            System.out.println("↩ Kartentausch rückgängig gemacht.");
+            state = doCardSwitch(stateBeforeSwitch, scanner);
+        }
+        return state;
+    }
+
     private static GameState doCardSwitch(GameState state, Scanner scanner) {
         System.out.println("\n=== Kartentausch ===");
         System.out.println("Jeder Spieler gibt eine Karte an den rechten Nachbarn weiter.");
+
         int n = state.players().size();
-        Card[] cardsToPass = new Card[n];
+        Card[] cardsToPass = List.range(0, n)
+                .map(i -> pickCardToPass(state.players().get(i), scanner))
+                .toJavaArray(Card[]::new);
 
-        for (int i = 0; i < n; i++) {
-            Player p = state.players().get(i);
-            System.out.println("\nSpieler " + p.id() + " → welche Karte weitergeben?");
-            for (int j = 0; j < p.hand().size(); j++) {
-                System.out.println("  " + j + ": " + p.hand().get(j));
-            }
-            int idx = 0;
-            while (true) {
-                System.out.print("Index: ");
-                if (scanner.hasNextInt()) {
-                    idx = scanner.nextInt();
-                    break;
-                } else {
-                    System.out.println("\u001B[31m Bitte eine gültige Zahl eingeben!\u001B[0m");
-                    scanner.next();
-                }
-            }
-            if (idx < 0 || idx >= p.hand().size()) {
-                System.out.println("Ungültig → erste Karte wird gewählt.");
-                idx = 0;
-            }
-            cardsToPass[i] = p.hand().get(idx);
-        }
-
-        GameState result = state;
-        for (int i = 0; i < n; i++) {
+        return List.range(0, n).foldLeft(state, (s, i) -> {
             int fromIdx = (i - 1 + n) % n;
-            Player p = result.players().get(i);
-            result = result.updatePlayerAt(i, p.replaceCard(cardsToPass[i], cardsToPass[fromIdx]));
+            Player p = s.players().get(i);
+            return s.updatePlayerAt(i, p.replaceCard(cardsToPass[i], cardsToPass[fromIdx]));
+        });
+    }
+
+    private static Card pickCardToPass(Player player, Scanner scanner) {
+        System.out.println("\nSpieler " + player.id() + " → welche Karte weitergeben?");
+        printHand(player);
+        int idx = readInt(scanner);
+        if (idx < 0 || idx >= player.hand().size()) {
+            System.out.println("Ungültig → erste Karte wird gewählt.");
+            return player.hand().get(0);
         }
-        return result;
+        return player.hand().get(idx);
+    }
+
+    // --- Spielzug ---
+
+    private static io.vavr.Tuple2<GameState, GameHistory> playTurn(
+            GameState state, GameHistory history, Scanner scanner) {
+
+        Player current = state.getCurrentPlayer();
+
+        if (GameEngine.hasWon(current)) {
+            System.out.println("\n✓ Spieler " + current.id() + " hat gewonnen!");
+            System.exit(0);
+        }
+
+        printPlayerStatus(current);
+
+        if (!GameEngine.hasAnyValidMove(current)) {
+            System.out.println("Kein gültiger Zug möglich → Karten werden in die Mitte geworfen.");
+            return io.vavr.Tuple.of(
+                    state.updatePlayer(current.withHand(List.empty())).nextPlayer(),
+                    history.push(state)
+            );
+        }
+
+        printHand(current);
+        return readAndExecuteMove(state, history, current, scanner);
+    }
+
+    private static io.vavr.Tuple2<GameState, GameHistory> readAndExecuteMove(
+            GameState state, GameHistory history, Player current, Scanner scanner) {
+
+        String input = readCardInput(scanner);
+
+        if (input.equals("u")) {
+            return applyUndo(state, history);
+        }
+
+        int cardIndex = parseCardIndex(input, current);
+        if (cardIndex < 0) return io.vavr.Tuple.of(state, history);
+
+        Card card = current.hand().get(cardIndex);
+        GameState newState = executeCard(state, card, current, scanner);
+        if (newState == state) return io.vavr.Tuple.of(state, history);
+
+        return io.vavr.Tuple.of(newState, history.push(state));
+    }
+
+    private static String readCardInput(Scanner scanner) {
+        while (true) {
+            System.out.print("Kartenindex wählen (oder 'u' für Undo): ");
+            String input = scanner.next().trim().toLowerCase();
+            if (input.equals("u") || input.matches("\\d+")) return input;
+            System.out.println("\u001B[31m Bitte eine gültige Zahl oder 'u' eingeben!\u001B[0m");
+        }
+    }
+
+    private static io.vavr.Tuple2<GameState, GameHistory> applyUndo(
+            GameState state, GameHistory history) {
+        if (!history.canUndo()) {
+            System.out.println("Kein Zug zum Rückgängigmachen vorhanden.");
+            return io.vavr.Tuple.of(state, history);
+        }
+        System.out.println("↩ Letzter Zug rückgängig gemacht.");
+        return io.vavr.Tuple.of(history.previous(), history.pop());
+    }
+
+    private static int parseCardIndex(String input, Player current) {
+        int idx = Integer.parseInt(input);
+        if (idx < 0 || idx >= current.hand().size()) {
+            System.out.println("Ungültig!");
+            return -1;
+        }
+        return idx;
+    }
+
+    // --- Karten ausführen ---
+
+    private static GameState executeCard(GameState state, Card card, Player current, Scanner scanner) {
+        return switch (card.rank()) {
+            case JACK  -> executeJack(state, card, scanner);
+            case SEVEN -> executeSeven(state, card, scanner);
+            case FOUR  -> executeFour(state, card, scanner);
+            case JOKER -> executeJoker(state, card, current, scanner);
+            default    -> executeStandard(state, card, scanner);
+        };
+    }
+
+    private static GameState executeJack(GameState state, Card card, Scanner scanner) {
+        printAllBalls(state);
+        System.out.print("Eigenen Ball wählen (0-3): ");
+        int ownBall = scanner.nextInt();
+        System.out.print("Spieler des Zielballs (0-3): ");
+        int targetPlayer = scanner.nextInt();
+        System.out.print("Zielball wählen (0-3): ");
+        int targetBall = scanner.nextInt();
+        return GameEngine.playJack(state, card, ownBall, targetPlayer, targetBall);
+    }
+
+    private static GameState executeSeven(GameState state, Card card, Scanner scanner) {
+        System.out.print("Ball wählen (0-3): ");
+        int ballIndex = scanner.nextInt();
+        System.out.print("Schritte für Ball " + ballIndex + " (1-6 = aufteilen, 7 = alles): ");
+        int steps1 = scanner.nextInt();
+        if (steps1 < 1 || steps1 > 7) { System.out.println("Ungültig!"); return state; }
+        if (steps1 == 7) return GameEngine.playCard(state, ballIndex, card, 7);
+
+        int steps2 = 7 - steps1;
+        System.out.print("Zweiten Ball wählen (bekommt " + steps2 + " Schritte): ");
+        int ball2 = scanner.nextInt();
+        if (ball2 < 0 || ball2 > 3) { System.out.println("Ungültig!"); return state; }
+        return GameEngine.playSevenSplit(state, card, ballIndex, steps1, ball2, steps2);
+    }
+
+    private static GameState executeFour(GameState state, Card card, Scanner scanner) {
+        System.out.print("Ball wählen (0-3): ");
+        int ballIndex = scanner.nextInt();
+        System.out.print("Richtung: (v)orwärts +4 oder (r)ückwärts -4? ");
+        int steps = scanner.next().trim().toLowerCase().startsWith("r") ? -4 : 4;
+        return GameEngine.playCard(state, ballIndex, card, steps);
+    }
+
+    private static GameState executeJoker(GameState state, Card card, Player current, Scanner scanner) {
+        System.out.print("Ball wählen (0-3): ");
+        int ballIndex = scanner.nextInt();
+        if (current.balls().get(ballIndex).isAtHome()) {
+            return GameEngine.playCard(state, ballIndex, card, 0);
+        }
+        System.out.print("Joker: Wie viele Schritte? (1-13): ");
+        int jokerSteps = scanner.nextInt();
+        if (jokerSteps < 1 || jokerSteps > 13) { System.out.println("Ungültig!"); return state; }
+        return GameEngine.playCard(state, ballIndex, card, jokerSteps);
+    }
+
+    private static GameState executeStandard(GameState state, Card card, Scanner scanner) {
+        System.out.print("Ball wählen (0-3): ");
+        int ballIndex = scanner.nextInt();
+        if (ballIndex < 0 || ballIndex > 3) { System.out.println("Ungültig!"); return state; }
+        return GameEngine.playCard(state, ballIndex, card, card.getMoveValue());
+    }
+
+    // --- Ausgabe-Hilfsmethoden ---
+
+    private static void printPlayerStatus(Player current) {
+        System.out.println("\n--------------------------------");
+        System.out.println("Spieler " + current.id());
+        List.range(0, 4).forEach(i ->
+                System.out.println("Ball " + i + ": Position " + current.balls().get(i).position()));
+    }
+
+    private static void printHand(Player player) {
+        System.out.println("\nHand:");
+        List.range(0, player.hand().size()).forEach(i ->
+                System.out.println("  " + i + ": " + player.hand().get(i)));
+    }
+
+    private static void printAllBalls(GameState state) {
+        System.out.println("Alle Bälle auf dem Feld:");
+        state.players().forEach(pl -> {
+            System.out.print("  Spieler " + pl.id() + ": ");
+            List.range(0, 4).forEach(b ->
+                    System.out.print("Ball" + b + "@" + pl.balls().get(b).position() + "  "));
+            System.out.println();
+        });
+    }
+
+    // --- Eingabe-Hilfsmethoden ---
+
+    private static int readInt(Scanner scanner) {
+        while (true) {
+            System.out.print("Index: ");
+            if (scanner.hasNextInt()) return scanner.nextInt();
+            System.out.println("\u001B[31m Bitte eine gültige Zahl eingeben!\u001B[0m");
+            scanner.next();
+        }
     }
 
     private static boolean isRoundFinished(GameState state) {
