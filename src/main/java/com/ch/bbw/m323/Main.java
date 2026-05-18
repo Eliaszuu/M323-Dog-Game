@@ -16,7 +16,17 @@ public class Main {
 
         while (true) {
             state = GameInitializer.dealCardsFromApi(state);
+            GameState stateBeforeSwitch = state;
             state = doCardSwitch(state, scanner);
+
+            System.out.print("Kartentausch rückgängig machen? (u = ja, f0 = weiter): ");
+            String undoSwitch = scanner.next().trim().toLowerCase();
+            if (undoSwitch.equals("u")) {
+                state = stateBeforeSwitch;
+                System.out.println("↩ Kartentausch rückgängig gemacht.");
+                state = doCardSwitch(state, scanner);
+            }
+
             System.out.println("\n=== Neue Runde gestartet ===");
 
             while (!isRoundFinished(state)) {
