@@ -5,7 +5,5 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DrawResponse {
-    public boolean success;
-    public String deck_id;
     public List<ApiCard> cards;
 }
