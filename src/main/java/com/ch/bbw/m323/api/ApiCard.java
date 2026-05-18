@@ -6,5 +6,4 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class ApiCard {
     public String value;
     public String suit;
-    public String code;
 }

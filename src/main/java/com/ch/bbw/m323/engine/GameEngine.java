@@ -3,25 +3,17 @@ package com.ch.bbw.m323.engine;
 import com.ch.bbw.m323.model.*;
 
 public class GameEngine {
-    private static final int START_OFFSET = 16;
-
-
-    public static int startPositionFor(int playerId) {
-        return playerId * START_OFFSET + 1;
-    }
-
     public static GameState playCard(GameState state, int ballIndex, Card card, int steps) {
 
         Player player = state.getCurrentPlayer();
         Ball ball = player.balls().get(ballIndex);
         Ball newBall;
 
-        // Aus dem Haus
         if (ball.isAtHome()) {
             if (card.rank() == Rank.ACE
                     || card.rank() == Rank.KING
                     || card.rank() == Rank.JOKER) {
-                // Jeder Spieler betritt das Feld an seiner eigenen Startposition
+
                 newBall = Ball.enterBoard();
             } else {
                 System.out.println("Du brauchst ASS, KÖNIG oder JOKER um aus dem Haus zu kommen!");

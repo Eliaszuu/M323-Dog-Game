@@ -23,8 +23,4 @@ public enum Rank {
     Rank(int value) {
         this.value = value;
     }
-
-    public int getMoveValue() {
-        return value;
-    }
 }
