@@ -19,7 +19,7 @@ public class Main {
             GameState stateBeforeSwitch = state;
             state = doCardSwitch(state, scanner);
 
-            System.out.print("Kartentausch rückgängig machen? (u = ja, f0 = weiter): ");
+            System.out.print("Kartentausch rückgängig machen? (u = ja, f = weiter): ");
             String undoSwitch = scanner.next().trim().toLowerCase();
             if (undoSwitch.equals("u")) {
                 state = stateBeforeSwitch;
