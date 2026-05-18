@@ -26,4 +26,13 @@ public record GameState(
                 cardsPerRound
         );
     }
+
+    public GameState updatePlayerAt(int index, Player updatedPlayer) {
+        return new GameState(
+                currentPlayer,
+                players.update(index, updatedPlayer),
+                roundMode,
+                cardsPerRound
+        );
+    }
 }

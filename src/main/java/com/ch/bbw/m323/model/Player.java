@@ -19,4 +19,8 @@ public record Player(
     public Player removeCard(Card card) {
         return new Player(id, balls, hand.remove(card));
     }
+
+    public Player replaceCard(Card toRemove, Card toAdd) {
+        return new Player(id, balls, hand.remove(toRemove).append(toAdd));
+    }
 }

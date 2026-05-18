@@ -16,27 +16,19 @@ public record Ball(int position) {
     }
 
     public Ball move(int steps) {
-
-        if (isAtHome()) {
-            throw new IllegalStateException("Ball is at home");
-        }
-
+        if (isAtHome()) throw new IllegalStateException("Ball is at home");
         int newPos = position + steps;
-
-        if (newPos > GOAL_END) {
-            return this; // nicht bewegen wenn über Ziel
-        }
-
+        // Rückwärts: darf nicht unter Position 1 fallen
+        if (newPos < 1) return this;
+        // Vorwärts: darf nicht über das Zielende hinausschiessen
+        if (newPos > GOAL_END) return this;
         return new Ball(newPos);
     }
 
-    /**
-     * Gibt true zurück, wenn sich der Ball bei diesem Schrittwert tatsächlich bewegen würde
-     * (d.h. nicht über das Zielende hinausschießt und nicht im Haus steht).
-     */
     public boolean wouldMove(int steps) {
         if (isAtHome()) return false;
-        return (position + steps) <= GOAL_END;
+        int newPos = position + steps;
+        return newPos >= 1 && newPos <= GOAL_END;
     }
 
     public static Ball enterBoard() {
