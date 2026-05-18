@@ -21,9 +21,12 @@ public class Main {
 
             System.out.println("\n=== Neue Runde gestartet ===");
 
+
             while (!isRoundFinished(state)) {
 
                 Player current = state.getCurrentPlayer();
+                int cardIndex = 0;
+
 
                 if (GameEngine.hasWon(current)) {
                     System.out.println("\n🎉 Spieler " + current.id() + " hat gewonnen!");
@@ -48,8 +51,17 @@ public class Main {
                     System.out.println("  " + i + ": " + current.hand().get(i));
                 }
 
-                System.out.print("Kartenindex wählen: ");
-                int cardIndex = scanner.nextInt();
+                while (true) {
+                    System.out.print("Kartenindex wählen: ");
+
+                    if (scanner.hasNextInt()) {
+                        cardIndex = scanner.nextInt();
+                        break; // gültige Zahl -> Schleife verlassen
+                    } else {
+                        System.out.println("Bitte eine gültige Zahl eingeben!");
+                        scanner.next(); // falsche Eingabe entfernen
+                    }
+                }
 
                 if (cardIndex < 0 || cardIndex >= current.hand().size()) {
                     System.out.println("Ungültig!");
@@ -154,8 +166,19 @@ public class Main {
             for (int j = 0; j < p.hand().size(); j++) {
                 System.out.println("  " + j + ": " + p.hand().get(j));
             }
-            System.out.print("Index: ");
-            int idx = scanner.nextInt();
+            int idx = 0;
+            while (true) {
+                System.out.print("Index: ");
+
+                if (scanner.hasNextInt()) {
+                    idx = scanner.nextInt();
+                    break; // gültige Zahl -> Schleife verlassen
+                } else {
+                    System.out.println("Bitte eine gültige Zahl eingeben!");
+                    scanner.next(); // falsche Eingabe entfernen
+                }
+            }
+
             if (idx < 0 || idx >= p.hand().size()) {
                 System.out.println("Ungültig – erste Karte wird gewählt.");
                 idx = 0;
