@@ -2,7 +2,7 @@ package com.ch.bbw.m323.model;
 
 import io.vavr.collection.List;
 
-public record GameState(
+public record  GameState(
         int currentPlayer,
         List<Player> players,
         RoundMode roundMode,

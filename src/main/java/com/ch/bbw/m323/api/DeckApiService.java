@@ -47,13 +47,13 @@ public class DeckApiService {
         DrawResponse result =
                 mapper.readValue(response.body(), DrawResponse.class);
 
-        return List.ofAll(result.cards)
+        return result.cards()
                 .map(this::mapToCard);
     }
 
     private Card mapToCard(ApiCard apiCard) {
-        Rank rank = mapRank(apiCard.value);
-        Suit suit = mapSuit(apiCard.suit);
+        Rank rank = mapRank(apiCard.value());
+        Suit suit = mapSuit(apiCard.suit());
         return new Card(rank, suit);
     }
 
